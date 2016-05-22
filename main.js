@@ -1,228 +1,35 @@
-(function (window) {
 
-    // 由于是第三方库，我们使用严格模式，尽可能发现潜在问题
-    'use strict';
+var imgUrls=["http://www.wed114.cn/jiehun/uploads/allimg/150303/39_150303100501_2.jpg",
+"http://img5.pcpop.com/ArticleImages/fnw/2016/0331/a1e4454c-5486-4052-b8ab-fd3d699440f9.jpg",
+"http://www.ygjj.com/bookpic2/2015-09-11/new533592-20150911125825527112.jpg"];
+var bimgurls=["http://npic7.edushi.com/cn/zixun/zh-chs/2016-01/07/6-151016161357.jpg",
+"http://tu.webps.cn/tb/img/4/T14I5tFOtXXXXXXXXX_%21%210-item_pic.jpg"]
+var data = ['http://7xrbxc.com1.z0.glb.clouddn.com/FuIk5hC-r1k0k5d-mBVpUVer1jDi',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Fmw3-dOXcbLNubC2p8jrGWYQwPAK',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Fpr0wEtkwKGRpBSnmW0uwdTUqApy',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FrP8qwn92YlIuaMqhOlmxpZ31pji',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Fjc61f4EvkmBZHbmtELO9Cz4BqHU',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Fts0MS6lmpRFunfAAqVujKTWKPLd',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FkgnxT_t66CO10dfNwg1iKo-_E4Z',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FuewZJr5wmENwJ-XNnqFrd_N2ecW',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FjWrwKaBB9tN0tCjkih0lKGAEvOn',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FvaOjagiAKaSp6cc-w58LO9Teua0',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FlVS5b8EDUczs1HGH0xoArxVLqbQ',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FpoijcrTNolDBKuxW4z20Uw92g3M',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FpP1ZSgv2uizxyUOmBe0xO9I6AZB',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FrSPBXbpL2Gs4VOTsdqc2OSOP8Qc',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FsS0baJIgkZF2chpk_c1F1OnSfYA',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FmqFVzBlhbczSnzjh53Qz5mSyZkB',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FkI2Z-1Z1xeiI0UK1ckM3iOpY78p',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FsnuRGWOVgeE1Nyb_5OVT9bREXsf',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FreNcgPy2SHOxPbXv09MNyrBW9j4',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Ftgo-yAxfoCXDfMQsEZTD9HXsR52',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Fibqr6ZOxqZLk9W5A6fHH1PkX1wd',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FvIPM8rivGByxAhlKOUXiGr8NycC',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/FqhnfTfmwXrhtlLAQ4li1oHa2eNS',
+        'http://7xrbxc.com1.z0.glb.clouddn.com/Fhv0Qp2yKYgwh013b_zrjL6igLXD']
+window.ifeAlbum.setImage(imgUrls,"WATERFALL");
+window.ifeAlbum.rendImageDomElements();
 
 
 
-    function IfeAlbum() {
-
-        // 布局的枚举类型
-        this.LAYOUT = {
-            PUZZLE: 1,    // 拼图布局
-            WATERFALL: 2, // 瀑布布局
-            BARREL: 3     // 木桶布局
-        };
-
-        // 公有变量可以写在这里
-        // this.xxx = ...
-
-    }
-
-    // 私有变量可以写在这里
-    // var xxx = ...
-
-
-
-    /************* 以下是本库提供的公有方法 *************/
-
-
-
-    /**
-     * 初始化并设置相册
-     * 当相册原本包含图片时，该方法会替换原有图片
-     * @param {(string|string[])} image  一张图片的 URL 或多张图片 URL 组成的数组
-     * @param {object}            option 配置项
-     */
-    IfeAlbum.prototype.setImage = function (image, option) {
-        
-        if (typeof image === 'string') {
-            // 包装成数组处理
-            this.setImage([image]);
-            return;
-        }
-
-        // 你的实现
-
-    };
-
-
-
-    /**
-     * 获取相册所有图像对应的 DOM 元素
-     * 可以不是 ，而是更外层的元素
-     * @return {HTMLElement[]} 相册所有图像对应的 DOM 元素组成的数组
-     */
-    IfeAlbum.prototype.getImageDomElements = function() {
-        
-    };
-
-
-
-    /**
-     * 向相册添加图片
-     * 在拼图布局下，根据图片数量重新计算布局方式；其他布局下向尾部追加图片
-     * @param {(string|string[])} image 一张图片的 URL 或多张图片 URL 组成的数组
-     */
-    IfeAlbum.prototype.addImage = function (image) {
-
-    };
-
-
-
-    /**
-     * 移除相册中的图片
-     * @param  {(HTMLElement|HTMLElement[])} image 需要移除的图片
-     * @return {boolean} 是否全部移除成功
-     */
-    IfeAlbum.prototype.removeImage = function (image) {
-
-    };
-
-
-
-    /**
-     * 设置相册的布局
-     * @param {number} layout 布局值，IfeAlbum.LAYOUT 中的值
-     */
-    IfeAlbum.prototype.setLayout = function (layout) {
-
-    };
-
-
-
-    /**
-     * 获取相册的布局
-     * @return {number} 布局枚举类型的值
-     */
-    IfeAlbum.prototype.getLayout = function() {
-
-    };
-
-
-
-    /**
-     * 设置图片之间的间距
-     * 注意这个值仅代表图片间的间距，不应直接用于图片的 margin 属性，如左上角图的左边和上边应该紧贴相册的左边和上边
-     * 相册本身的 padding 始终是 0，用户想修改相册外框的空白需要自己设置相框元素的 padding
-     * @param {number}  x  图片之间的横向间距
-     * @param {number} [y] 图片之间的纵向间距，如果是 undefined 则等同于 x
-     */
-    IfeAlbum.prototype.setGutter = function (x, y) {
-
-    };
-
-
-
-    /**
-     * 允许点击图片时全屏浏览图片
-     */
-    IfeAlbum.prototype.enableFullscreen = function () {
-
-    };
-
-
-
-    /**
-     * 禁止点击图片时全屏浏览图片
-     */
-    IfeAlbum.prototype.disableFullscreen = function () {
-
-    };
-
-
-
-    /**
-     * 获取点击图片时全屏浏览图片是否被允许
-     * @return {boolean} 是否允许全屏浏览
-     */
-    IfeAlbum.prototype.isFullscreenEnabled = function () {
-
-    };
-
-
-    /**
-     * 设置木桶模式每行图片数的上下限
-     * @param {number} min 最少图片数（含）
-     * @param {number} max 最多图片数（含）
-     */
-    IfeAlbum.prototype.setBarrelBin = function (min, max) {
-
-        // 注意异常情况的处理，做一个健壮的库
-        if (min === undefined || max === undefined || min > max) {
-            console.error('...');
-            return;
-        }
-
-        // 你的实现
-
-    };
-
-
-
-    /**
-     * 获取木桶模式每行图片数的上限
-     * @return {number} 最多图片数（含）
-     */
-    IfeAlbum.prototype.getBarrelBinMax = function () {
-
-    };
-
-
-
-    /**
-     * 获取木桶模式每行图片数的下限
-     * @return {number} 最少图片数（含）
-     */
-    IfeAlbum.prototype.getBarrelBinMin = function () {
-
-    };
-
-
-
-    /**
-     * 设置木桶模式每行高度的上下限，单位像素
-     * @param {number} min 最小高度
-     * @param {number} max 最大高度
-     */
-    IfeAlbum.prototype.setBarrelHeight = function (min, max) {
-
-    };
-
-
-
-    /**
-     * 获取木桶模式每行高度的上限
-     * @return {number} 最多图片数（含）
-     */
-    IfeAlbum.prototype.getBarrelHeightMax = function () {
-
-    };
-
-
-
-    /**
-     * 获取木桶模式每行高度的下限
-     * @return {number} 最少图片数（含）
-     */
-    IfeAlbum.prototype.getBarrelHeightMin = function () {
-
-    };
-
-
-
-    // 你想增加的其他接口
-
-
-
-    /************* 以上是本库提供的公有方法 *************/
-
-
-
-    // 实例化
-    if (typeof window.ifeAlbum === 'undefined') {
-        // 只有当未初始化时才实例化
-        window.ifeAlbum = new IfeAlbum();
-    }
-
-}(window));
