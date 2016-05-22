@@ -41,7 +41,194 @@
             node.className = newClass; //IE 和FF都支持
        // }
         
-    } 
+    }
+    // 实现一个简单的Query
+        function $(selector) {
+            var idRegex = /^#([\w\-\.\:]+)/;
+            var tagRegex = /^\w+$/;
+            var classRegex = /^\.([\w\-\.\:]+)/;
+            // [data-log]
+            // [data-log="test"]
+            // [data-log=test]
+            // [data-log='test']
+            var attrRegex = /(\w+)?\[([^=\]]+)(?:=(["'])?([^\]"']+)\3?)?\]/;    //important!!
+            var selectActions = trim(selector).split(" ");
+            
+            //复合查找
+            if (selectActions.length > 1) {    
+                var root = $(selectActions[selectActions.length - 1]);
+                if (root.length == 0) {
+                    return null;
+                }
+                
+                if (!isArray(root)) {
+                    root = toArray(root);
+                }
+                for (var cur = 2; cur <= selectActions.length; cur++) {
+                    root = fliterParent(root, selectActions[selectActions.length - cur]);
+                }
+                return root;
+            }
+            
+            //通过id查找
+            if (idRegex.test(selector)) {
+                return document.getElementById(selector.slice(1, selector.length));
+            }
+            
+            //通过tagname查找
+            if (tagRegex.test(selector)) {
+                return document.getElementsByTagName(selector);
+            }
+            
+            //通过class查找
+            if (classRegex.test(selector)) {
+                if (document.getElementsByClassName) {    //浏览器支持getElementsByClassName
+                    return document.getElementsByClassName(selector.slice(1, selector.length));
+                }
+                else {
+                    var allNodes = document.getElementsByTagName("*");
+                    var result = [];
+                    for (var cur = 0; cur < allNodes.length; cur++) {
+                        if (hasClass(allNodes[cur], selector.slice(1, selector.length))) {
+                            result.push(allNodes[cur]);
+                        }
+                    }
+                    return result;
+                }
+            }
+            
+            //通过属性查找
+            if (attrRegex.test(selector)) {
+                var result = [];
+                var allNodes = document.getElementsByTagName("*");
+                var matchResult = selector.match(attrRegex);
+                var tag = matchResult[1]; 
+                var key = matchResult[2];
+                var value = matchResult[4];
+                for (var cur = 0; cur < allNodes.length; cur++) {
+                    if (value) {
+                        var temp = allNodes[cur].getAttribute(key);
+                        if (temp === value) {
+                            result.push(allNodes[cur]);
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    else {
+                        if (allNodes[cur].hasAttribute(key)) {
+                            result.push(allNodes[cur]);
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        // 对字符串头尾进行空格字符的去除、包括全角半角空格、Tab等，返回一个字符串
+        // 尝试使用一行简洁的正则表达式完成该题目
+        function trim(str) {
+            var regex1 = /^\s*/;
+            var regex2 = /\s*$/;
+            return (str.replace(regex1, "")).replace(regex2, "");
+        }
+
+        // 判断arr是否为一个数组，返回一个bool值
+        function isArray(arr) {
+            return (Object.prototype.toString.call(arr) === '[object Array]');
+        }
+
+        // 得到真正的Array
+        function toArray(root) {
+            var arr = [];
+            for (var cur = 0; cur < root.length; cur++) {
+                arr.push(root[cur]);
+            }
+            return arr;
+        }
+
+        // 给一个element绑定一个针对event事件的响应，响应函数为listener
+        function addEvent(element, event, listener) {
+            console.log("addEvent");
+            if (element.addEventListener) {
+                element.addEventListener(event, listener, false);
+            }
+            else if (element.attachEvent) {
+                element.attachEvent("on" + event, listener);
+            }
+            else {
+                element["on" + event] = listener;
+            }
+        }
+
+        // 为element增加一个样式名为newClassName的新样式
+        function addClass(element, newClassName) {
+            try{
+                element.classList.add(newClassName);
+            }catch(ex){
+                var oldClassName = element.className;
+                element.className = !oldClassName? newClassName : oldClassName+" "+newClassName;
+            }
+        }
+        //事件代理
+        function delegateEvent(element, tag, eventName, listener) {
+            console.log("delegateEvent");
+            addEvent(element, eventName, function () {
+                var event = arguments[0] || window.event,
+                    target = event.target || event.srcElement;
+                if (target && target.tagName === tag.toUpperCase()) {
+                    listener.call(target, event);
+                }
+            });
+        };
+        // 移除element中的样式oldClassName
+        function removeClass(element, oldClassName) {
+            try{
+                element.classList.remove(oldClassName);  //html5中新增的，classList属性，只有chrome和firefox3.6支持
+            }catch(ex){
+                var re = RegExp("\\b"+oldClassName+"\\b");
+                console.log(element);
+                element.className = element.className.replace(re,"");
+            }
+        }
+        //jquery中的extend 浅拷贝
+        var extend = function(out) {
+          out = out || {};
+
+          for (var i = 1; i < arguments.length; i++) {
+            if (!arguments[i])
+              continue;
+
+            for (var key in arguments[i]) {
+              if (arguments[i].hasOwnProperty(key))
+                out[key] = arguments[i][key];
+            }
+          }
+
+          return out;
+        };
+        //jquery中的深拷贝
+        var deepExtend = function(out) {
+          out = out || {};
+
+          for (var i = 1; i < arguments.length; i++) {
+            var obj = arguments[i];
+
+            if (!obj)
+              continue;
+
+            for (var key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                if (typeof obj[key] === 'object')
+                  out[key] = deepExtend(out[key], obj[key]);
+                else
+                  out[key] = obj[key];
+              }
+            }
+          }
+
+          return out;
+        }; 
 
     /************* 以下是本库提供的公有方法 *************/
 
@@ -54,12 +241,21 @@
      * @param {object}            option 配置项
      */
     IfeAlbum.prototype.setImage = function (image, option) {
-        
+        var dAlbume=document.getElementsByClassName("album")[0];
+        dAlbume.innerHTML="";
+        dAlbume.style="";
+        var imgs=dAlbume.getElementsByTagName("img");
+        for(var i=0;i<imgs.length;i++){
+
+            imgs[i].className="";
+        }
+        dAlbume.className="album";
         if (typeof image === 'string') {
             // 包装成数组处理
             this.setImage([image]);
             return;
         }
+         this.imgUrls=[];
         // 你的实现
         for(var i in image){
             this.imgUrls.push(image[i])
@@ -72,7 +268,7 @@
 
     };
 
-
+ 
 
     /**
      * 选择模式，并渲染
@@ -163,7 +359,6 @@
      */
     IfeAlbum.prototype.getLayout = function() {
         return this.LayoutType;
-
     };
 
 
@@ -204,6 +399,7 @@
      * @return {boolean} 是否允许全屏浏览
      */
     IfeAlbum.prototype.isFullscreenEnabled = function () {
+
 
     };
 
@@ -292,10 +488,10 @@
         var boxWidth="280";
         var boxHeight="210";
         var imgType=function imgType(img,areaW,areaH){//判断图片是由高度决定的还是宽度决定的
-            //console.log(img,img.width);
+           
             var H=img.height/(areaH);
             var W=img.width/(areaW);
-            //console.log(W,H);
+            
             return H<W?"height":"width";
         };//图片类型判断函数
         var JGSAW=function jgsaw(url,jgsawNum,index,parent){
@@ -311,7 +507,7 @@
                     self.class="jgsaw-img-"+jgsawNum+"-"+parseInt(index)+"-"+self.type;
                     var image=document.createElement("img");
                     addClass(image,self.class);
-                    console.log("jgsawNum"+index);
+                   
                     image.class=self.class;
                     switch(jgsawNum){//由于有些布局无法用纯粹的css实现，所以添加必要的js辅助手段
                         case 2:
@@ -490,7 +686,7 @@
     */
     IfeAlbum.prototype.rendBarrel = function() {
         
-
+        document.getElementsByClassName("album")[0].id="container";
         function Cask(selector,data) {
             this.data = data;
             this.container = selector;
@@ -511,7 +707,7 @@
         Cask.prototype = {
             constructor: Cask,
             init: function() {
-                console.log(this.data.length);
+                
                 var container = document.getElementById(this.container);
                 container.style.width = this.wholeWidth+"px";
                 this.getPhoto(this.firstScreen);
@@ -633,7 +829,7 @@
                 element.classList.remove(oldClassName);  //html5中新增的，classList属性，只有chrome和firefox3.6支持
             }catch(ex){
                 var re = RegExp("\\b"+oldClassName+"\\b");
-                console.log(element);
+               
                 element.className = element.className.replace(re,"");
             }
         }
@@ -698,193 +894,6 @@
     */
     IfeAlbum.prototype.rendWaterfull = function(){
         var album=this;
-        // 实现一个简单的Query
-        function $(selector) {
-            var idRegex = /^#([\w\-\.\:]+)/;
-            var tagRegex = /^\w+$/;
-            var classRegex = /^\.([\w\-\.\:]+)/;
-            // [data-log]
-            // [data-log="test"]
-            // [data-log=test]
-            // [data-log='test']
-            var attrRegex = /(\w+)?\[([^=\]]+)(?:=(["'])?([^\]"']+)\3?)?\]/;    //important!!
-            var selectActions = trim(selector).split(" ");
-            
-            //复合查找
-            if (selectActions.length > 1) {    
-                var root = $(selectActions[selectActions.length - 1]);
-                if (root.length == 0) {
-                    return null;
-                }
-                
-                if (!isArray(root)) {
-                    root = toArray(root);
-                }
-                for (var cur = 2; cur <= selectActions.length; cur++) {
-                    root = fliterParent(root, selectActions[selectActions.length - cur]);
-                }
-                return root;
-            }
-            
-            //通过id查找
-            if (idRegex.test(selector)) {
-                return document.getElementById(selector.slice(1, selector.length));
-            }
-            
-            //通过tagname查找
-            if (tagRegex.test(selector)) {
-                return document.getElementsByTagName(selector);
-            }
-            
-            //通过class查找
-            if (classRegex.test(selector)) {
-                if (document.getElementsByClassName) {    //浏览器支持getElementsByClassName
-                    return document.getElementsByClassName(selector.slice(1, selector.length));
-                }
-                else {
-                    var allNodes = document.getElementsByTagName("*");
-                    var result = [];
-                    for (var cur = 0; cur < allNodes.length; cur++) {
-                        if (hasClass(allNodes[cur], selector.slice(1, selector.length))) {
-                            result.push(allNodes[cur]);
-                        }
-                    }
-                    return result;
-                }
-            }
-            
-            //通过属性查找
-            if (attrRegex.test(selector)) {
-                var result = [];
-                var allNodes = document.getElementsByTagName("*");
-                var matchResult = selector.match(attrRegex);
-                var tag = matchResult[1]; 
-                var key = matchResult[2];
-                var value = matchResult[4];
-                for (var cur = 0; cur < allNodes.length; cur++) {
-                    if (value) {
-                        var temp = allNodes[cur].getAttribute(key);
-                        if (temp === value) {
-                            result.push(allNodes[cur]);
-                        }
-                        else {
-                            continue;
-                        }
-                    }
-                    else {
-                        if (allNodes[cur].hasAttribute(key)) {
-                            result.push(allNodes[cur]);
-                        }
-                    }
-                }
-                return result;
-            }
-        }
-
-        // 对字符串头尾进行空格字符的去除、包括全角半角空格、Tab等，返回一个字符串
-        // 尝试使用一行简洁的正则表达式完成该题目
-        function trim(str) {
-            var regex1 = /^\s*/;
-            var regex2 = /\s*$/;
-            return (str.replace(regex1, "")).replace(regex2, "");
-        }
-
-        // 判断arr是否为一个数组，返回一个bool值
-        function isArray(arr) {
-            return (Object.prototype.toString.call(arr) === '[object Array]');
-        }
-
-        // 得到真正的Array
-        function toArray(root) {
-            var arr = [];
-            for (var cur = 0; cur < root.length; cur++) {
-                arr.push(root[cur]);
-            }
-            return arr;
-        }
-
-        // 给一个element绑定一个针对event事件的响应，响应函数为listener
-        function addEvent(element, event, listener) {
-            console.log("addEvent");
-            if (element.addEventListener) {
-                element.addEventListener(event, listener, false);
-            }
-            else if (element.attachEvent) {
-                element.attachEvent("on" + event, listener);
-            }
-            else {
-                element["on" + event] = listener;
-            }
-        }
-
-        // 为element增加一个样式名为newClassName的新样式
-        function addClass(element, newClassName) {
-            try{
-                element.classList.add(newClassName);
-            }catch(ex){
-                oldClassName = element.className;
-                element.className = !oldClassName? newClassName : oldClassName+" "+newClassName;
-            }
-        }
-        //事件代理
-        function delegateEvent(element, tag, eventName, listener) {
-            console.log("delegateEvent");
-            addEvent(element, eventName, function () {
-                var event = arguments[0] || window.event,
-                    target = event.target || event.srcElement;
-                if (target && target.tagName === tag.toUpperCase()) {
-                    listener.call(target, event);
-                }
-            });
-        };
-        // 移除element中的样式oldClassName
-        function removeClass(element, oldClassName) {
-            try{
-                element.classList.remove(oldClassName);  //html5中新增的，classList属性，只有chrome和firefox3.6支持
-            }catch(ex){
-                var re = RegExp("\\b"+oldClassName+"\\b");
-                console.log(element);
-                element.className = element.className.replace(re,"");
-            }
-        }
-        //jquery中的extend 浅拷贝
-        var extend = function(out) {
-          out = out || {};
-
-          for (var i = 1; i < arguments.length; i++) {
-            if (!arguments[i])
-              continue;
-
-            for (var key in arguments[i]) {
-              if (arguments[i].hasOwnProperty(key))
-                out[key] = arguments[i][key];
-            }
-          }
-
-          return out;
-        };
-        //jquery中的深拷贝
-        var deepExtend = function(out) {
-          out = out || {};
-
-          for (var i = 1; i < arguments.length; i++) {
-            var obj = arguments[i];
-
-            if (!obj)
-              continue;
-
-            for (var key in obj) {
-              if (obj.hasOwnProperty(key)) {
-                if (typeof obj[key] === 'object')
-                  out[key] = deepExtend(out[key], obj[key]);
-                else
-                  out[key] = obj[key];
-              }
-            }
-          }
-
-          return out;
-        };
         var dAlbume=document.getElementsByClassName("album")[0];
         dAlbume.id="waterfall";
         function Waterfall(){
@@ -893,7 +902,7 @@
                 fallClass: "box",           //默认字容器的类
                 columnNum: 4,               //列数 默认值4
                 pix: 16,                    //子容器的间距单位px
-                isClickShowDetail: true,    //是否有点击回调函数，默认存在
+                isClickShowDetail: false,    //是否有点击回调函数，默认存在
                 
             }
             
@@ -903,7 +912,7 @@
         Waterfall.prototype = {
             initColumn: function(cfg) { //添加列
               // create column div
-              console.log("initColumn");
+              
               this.columns = [];
               cfg = extend({},this.cfg,cfg); //覆盖默认值
               var columnNum = cfg.columnNum;
@@ -918,7 +927,7 @@
               //添加事件监听
               if(cfg.isClickShowDetail){
                 function showDetail(){
-                    console.log("showDetail",event,event.target.getAttribute('src'));
+                    
                     var detail = document.createElement("div");
                     var detail_img = document.createElement("img");
                     detail_img.src = event.target.getAttribute('src');
@@ -947,7 +956,7 @@
                 },
 
             createContent: function(cfg){ //添加子容器
-                console.log("createContent");
+                
                 cfg = extend({},this.cfg,cfg); //覆盖默认值
 
                 var content = document.createElement("div");
@@ -958,8 +967,8 @@
 
                 var img = document.createElement("img");
                 img.style.width = "100%";
-                var imgnum = parseInt(Math.random()*3);
-               // console.log(album)
+                var imgnum = parseInt(Math.random()*10);
+              
                 img.src = album.imgUrls[imgnum]//暂时图片地址是这样子的，for demo
                 content.appendChild(img);
 
@@ -967,9 +976,6 @@
             },
 
             addContent: function(){
-                console.log("addContent");
-                
-                //console.log(cfg.contents.row1s);
                 for (var i = 0; i < 10; i++) {
                     var c = this.createContent();
                     var num = document.createElement("div");
@@ -978,7 +984,7 @@
                     //c.innerHTML = i;
                     var index = this.getMinHeightIndex();
                     var column = this.columns[index];
-                    console.log("index ",index,"c ",c);
+                  
                     column.appendChild(c);
                 }
             },
